@@ -1,4 +1,4 @@
-module github.com/justbeboring/simplerpc
+module simplerpc
 
 go 1.15
 
@@ -31,4 +31,6 @@ require (
 replace (
 	github.com/coreos/bbolt v1.3.5 => go.etcd.io/bbolt v1.3.5
 	google.golang.org/grpc v1.35.0 => google.golang.org/grpc v1.26.0
+	github.com/justbeboring/simplerpc/balancer => ./banlancer
+	github.com/justbeboring/simplerpc/registry => ./registry
 )
