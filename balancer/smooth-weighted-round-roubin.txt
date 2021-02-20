@@ -1,0 +1,83 @@
+package balancer
+
+//Peer 单个配置节点
+type Peer struct {
+	Sockaddr        string //id地址
+	CurrentWeight   int //当前权重
+	EffectiveWeight int //有效权重
+	Weight          int //配置权重
+}
+
+//Peers 服务器地址池
+type Peers struct {
+	number      int     //服务器数量
+	TotalWeight int     //总权重
+	peer        []*Peer //服务器节点数组
+}
+
+//PeerData 解析后的服务器数据
+type PeerData struct {
+	Peers *Peers //服务器池数据
+}
+
+//ServerConfig 模拟配置文件
+//配置节点
+type ServerConfig struct {
+	Addr   string
+	Weight int
+}
+
+//InitPeer 节点初始化
+func InitPeer(cf []ServerConfig) *PeerData {
+	pd := new(PeerData)
+	pd.Peers = new(Peers)
+	c := len(cf)
+	pd.Peers.number = c
+	pd.Peers.peer = make([]*Peer, c, c)
+	for i := 0; i < pd.Peers.number; i++ {
+		pd.Peers.peer[i] = new(Peer)
+		pd.Peers.peer[i].Weight = cf[i].Weight
+		pd.Peers.peer[i].Sockaddr = cf[i].Addr
+		pd.Peers.peer[i].EffectiveWeight = cf[i].Weight //将EffectiveWeight初始为Weight值
+	}
+	return pd
+}
+
+func (pd *PeerData)AddPeer(sc ServerConfig) bool {
+	if pd.ContainsPeer(sc.Addr){
+		return false
+	}
+	return true
+}
+
+func (pd *PeerData)ContainsPeer(addr string) bool {
+	for _,p := range pd.Peers.peer{
+		if p.Sockaddr == addr{
+			return true
+		}
+	}
+	return false
+}
+
+//GetPeer 获取一台节点地址
+func (pd *PeerData)GetPeer() *Peer {
+	var best *Peer
+	total := 0
+
+	for i := 0; i < pd.Peers.number; i++ {
+		peer := pd.Peers.peer[i]
+		peer.CurrentWeight += peer.EffectiveWeight //将当前权重与有效权重相加
+
+		total += peer.EffectiveWeight //累加总权重
+
+		if best == nil || peer.CurrentWeight > best.CurrentWeight {
+			best = peer
+		}
+
+	}
+	if best == nil {
+		return nil
+	}
+	best.CurrentWeight -= total //将当前权重改为当前权重-总权重
+	return best
+}
