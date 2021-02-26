@@ -7,7 +7,6 @@ import (
 	"google.golang.org/grpc/resolver"
 	"log"
 	"main/pb"
-	"time"
 )
 
 func main() {
@@ -21,16 +20,13 @@ func main() {
 
 	resolver.Register(r)
 	var err error
-	//r.Conn, err = grpc.Dial(r.Scheme()+"://author/test", grpc.WithBalancerName("round_robin"), grpc.WithInsecure())
 	r.Init()
 	if err != nil {
 		panic(err)
 	}
 
 	client := pb.NewHelloServiceClient(r.Conn)
-
-	count := 0
-	time.Sleep(1*time.Second)
+	
 	for i :=0;i< 20;i++{
 		resp, err := client.Echo(context.Background(), &pb.Payload{Data: "hello"}, grpc.FailFast(true))
 		if err != nil {
@@ -38,7 +34,6 @@ func main() {
 		} else {
 			log.Println(resp.Data)
 		}
-		count++
 	}
 
 }

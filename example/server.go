@@ -35,9 +35,9 @@ func main(){
 	flag.Parse()
 	service := simplerpc.NewService("test",addr)
 	service.AddRegistry("etcd","127.0.0.1:2379","")
-	//service.AddRegistry(registry.CONSUL,"11.36.208.249:8500","")
-	//service.AddRegistry(registry.ZK,"11.36.208.249:2181","")
-	//service.AddRegistry(registry.REDIS,"11.36.208.249:6379","")
+	//service.AddRegistry("consul","127.0.0.1:8500","")
+	//service.AddRegistry("zookeeper","127.0.0.1:2181","")
+	//service.AddRegistry("redis","127.0.0.1:6379","")
 	//service.SetCreds("tls/server.crt","tls/server.key")
 
     service.Init()
