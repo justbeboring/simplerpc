@@ -84,6 +84,4 @@ client：
 		} else {
 			log.Println(resp.Data)
 		}
-		}
 	}
-
