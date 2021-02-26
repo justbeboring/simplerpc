@@ -14,6 +14,7 @@ server：
 	service.Run()
 
 client：
+
 	r := simplerpc.NewResolver("test")
 	r.AddRegistry("etcd","127.0.0.1:2379","")
 	//r.AddRegistry(registry.CONSUL,"11.36.208.249:8500","")
