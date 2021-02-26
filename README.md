@@ -3,24 +3,32 @@ a simple rpc-frame over grpc with registry(etcd/consul/zookeeper/redis) and load
 
 server：
 
-    listener, err := net.Listen("tcp", "127.0.0.1:32449")
-	server := grpc.NewServer()
+service := simplerpc.NewService("test",addr)
+service.AddRegistry("etcd","127.0.0.1:2379","")
+//service.AddRegistry("conaul","11.36.208.249:8500","")
+//service.AddRegistry("zookeeper","11.36.208.249:2181","")
+//service.AddRegistry("redis","11.36.208.249:6379","")
+//service.SetCreds("tls/server.crt","tls/server.key")
 
-	if err != nil {
-		log.Fatalf("failed to listen: %s", err)
-	}
-	pb.RegisterHelloServiceServer(server,&hello{})
-	server.Serve(listener)
+service.Init()
+pb.RegisterHelloServiceServer(service.GrpcServer, &hello{})
+service.Run()
 
 client：
+r := simplerpc.NewResolver("test")
 
-    conn, err := grpc.Dial(127.0.0.1:32449",grpc.WithInsecure())
-	if err != nil {
-		log.Print(err)
-	}
-	defer conn.Close()
-	client := pb.NewHelloServiceClient(conn)
-	for {
-		resp, _ := client.Echo(context.Background(), &pb.Payload{Data: "hello"}, grpc.FailFast(true))
-		fmt.Println(resp.Data)
-	}
+r.AddRegistry("etcd","127.0.0.1:2379","")
+//r.AddRegistry(registry.CONSUL,"11.36.208.249:8500","")
+//r.AddRegistry(registry.ZK,"11.36.208.249:2181","")
+//r.AddRegistry(registry.REDIS, "11.36.208.249:6379", "")
+//r.SetCreds("tls/server.crt","server.grpc.io")
+
+resolver.Register(r)
+r.Init()
+client := pb.NewHelloServiceClient(r.Conn)
+resp, err := client.Echo(context.Background(), &pb.Payload{Data: "hello"}, grpc.FailFast(true))
+if err != nil {
+	log.Println(err)
+} else {
+	log.Println(resp.Data)
+}
